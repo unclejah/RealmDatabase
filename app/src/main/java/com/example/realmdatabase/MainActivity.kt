@@ -4,14 +4,16 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.*
 import com.example.realmdatabase.databinding.ActivityMainBinding
-import io.realm.Realm
+import com.example.realmdatabase.ui.AddContactActivity
+import com.example.realmdatabase.ui.ContactsAdapter
+import com.example.realmdatabase.ui.EditContactActivity
+import com.example.realmdatabase.ui.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity(), LifecycleObserver {
-
     private lateinit var binding: ActivityMainBinding
 
     private val defaultLifecycleObserver = object : DefaultLifecycleObserver {
@@ -31,7 +33,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         }
     }
 
-    private val viewModel : MainViewModel by viewModel()
+    private val viewModel by viewModel<MainViewModel> ()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +44,8 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val adapter = ContactsAdapter()
+        val adapter = ContactsAdapter ({contactToEditIndex ->
+            editContact(contactToEditIndex)})
 
         viewModel.allContacts.observe(this) {
             adapter.setData(it)
@@ -52,10 +56,22 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         binding.fabAddContact.setOnClickListener {
             startActivity(Intent(this, AddContactActivity::class.java))
         }
+        binding.etSearch.doAfterTextChanged { text ->  viewModel.contactsShown(text.toString())  }
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
         lifecycle.removeObserver(defaultLifecycleObserver)
     }
+
+    private fun editContact (contactToEditIndex: Int) {
+        val id = viewModel.getContactId(contactToEditIndex)
+        val intent = Intent(this, EditContactActivity::class.java)
+        intent.putExtra("id", id)
+        startActivity(intent)
+    }
+
+
+
 }

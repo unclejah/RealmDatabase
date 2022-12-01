@@ -20,8 +20,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AddContactActivity"
+            android:name=".ui.AddContactActivity"
             android:exported="false"
+            android:windowSoftInputMode="stateVisible"/>
+        <activity
+            android:name=".ui.EditContactActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateVisible"
             />
     </application>
 
